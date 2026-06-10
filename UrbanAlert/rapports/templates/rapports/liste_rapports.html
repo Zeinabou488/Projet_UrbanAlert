@@ -1,0 +1,60 @@
+{% extends 'tableau_de_bord/base_admin.html' %}
+
+{% block title %}Rapports PDF — UrbanAlert Admin{% endblock %}
+{% block page_title %}Rapports PDF archivés{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="text-muted mb-0">{{ rapports.count }} rapport(s) archivé(s)</p>
+    <a href="{% url 'generer_rapport' %}" class="btn btn-danger">
+        <i class="fas fa-plus me-1"></i>Générer un nouveau rapport
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Type</th>
+                    <th>Période</th>
+                    <th>Généré par</th>
+                    <th>Date de génération</th>
+                    <th>Télécharger</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rapports %}
+                <tr>
+                    <td>
+                        <span class="badge {% if r.type_rapport == 'mensuel' %}bg-primary{% else %}bg-secondary{% endif %}">
+                            {{ r.get_type_rapport_display }}
+                        </span>
+                    </td>
+                    <td>{{ r.periode_debut|date:"d/m/Y" }} → {{ r.periode_fin|date:"d/m/Y" }}</td>
+                    <td>{{ r.genere_par.username|default:"—" }}</td>
+                    <td>{{ r.date_generation|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if r.fichier_pdf %}
+                        <a href="{% url 'telecharger_rapport' r.pk %}"
+                           class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-download me-1"></i>PDF
+                        </a>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">
+                        <i class="fas fa-file-pdf fa-2x mb-2"></i>
+                        <br>Aucun rapport généré
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
