@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes signalements — UrbanAlert{% endblock %}
+
+{% block extra_css_inline %}
+.stat-card {
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    color: #fff;
+    font-weight: 600;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h2 class="fw-bold mb-1">
+        <i class="fas fa-user-circle text-success me-2"></i>
+        Mes signalements
+    </h2>
+    <p class="text-muted mb-4">Historique de vos contributions citoyennes</p>
+
+    <!-- STATISTIQUES PERSONNELLES -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card" style="background: var(--ua-dark);">
+                <div class="display-6">{{ total }}</div>
+                <small>Total</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card" style="background: var(--ua-orange);">
+                <div class="display-6">{{ en_attente }}</div>
+                <small>En attente</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card" style="background: var(--ua-blue);">
+                <div class="display-6">{{ en_cours }}</div>
+                <small>En cours</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card" style="background: var(--ua-green-dark);">
+                <div class="display-6">{{ resolus }}</div>
+                <small>Résolus</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- LISTE -->
+    {% if signalements %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white shadow-sm rounded">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Titre</th>
+                    <th>Catégorie</th>
+                    <th>Commune</th>
+                    <th>Statut</th>
+                    <th>Priorité</th>
+                    <th>Votes</th>
+                    <th>Date</th>
+                    <th>Délai</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in signalements %}
+                <tr>
+                    <td class="text-muted small">{{ s.id }}</td>
+                    <td>
+                        <strong>{{ s.titre|truncatechars:40 }}</strong>
+                        {% if s.est_urgence %}
+                        <span class="badge bg-danger ms-1 badge-urgence">URGENCE</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge" style="background: {{ s.sous_categorie.categorie.couleur }};">
+                            {{ s.sous_categorie.categorie.nom }}
+                        </span>
+                    </td>
+                    <td>{{ s.quartier.commune.nom }}</td>
+                    <td>
+                        <span class="badge bg-{{ s.statut.couleur }}">
+                            {{ s.statut.nom_statut }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge
+                            {% if s.priorite == 'urgent' %}bg-danger
+                            {% elif s.priorite == 'moyen' %}bg-warning text-dark
+                            {% else %}bg-secondary{% endif %}">
+                            {{ s.get_priorite_display }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <i class="fas fa-thumbs-up text-success me-1"></i>{{ s.nb_votes }}
+                    </td>
+                    <td class="small text-muted">{{ s.date_creation|date:"d/m/Y" }}</td>
+                    <td class="small">
+                        {% if s.date_resolution %}
+                        <span class="text-success fw-bold">
+                            {{ s.delai_traitement_jours }}j
+                        </span>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'detail_signalement' s.pk %}"
+                           class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Vous n'avez encore aucun signalement</h5>
+        <a href="{% url 'soumettre_signalement' %}" class="btn btn-ua-primary mt-2">
+            <i class="fas fa-plus me-1"></i>Soumettre mon premier signalement
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

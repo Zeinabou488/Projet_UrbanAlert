@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ signalement.titre }} — UrbanAlert{% endblock %}
+
+{% block extra_css_inline %}
+.detail-header {
+    background: linear-gradient(135deg, var(--ua-dark) 0%, #34495e 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+}
+.info-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    margin-bottom: 1.2rem;
+}
+.section-title {
+    color: var(--ua-green-dark);
+    font-weight: 700;
+    border-bottom: 2px solid var(--ua-green);
+    padding-bottom: 0.4rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+.vote-btn {
+    border-radius: 25px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.vote-btn.voted {
+    background: var(--ua-green);
+    border-color: var(--ua-green);
+    color: #fff;
+}
+.timeline-item {
+    position: relative;
+    padding-left: 2.5rem;
+    padding-bottom: 1rem;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0.6rem;
+    top: 1.5rem;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+.timeline-item:last-child::before { display: none; }
+.timeline-dot {
+    position: absolute;
+    left: 0;
+    top: 0.3rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: var(--ua-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.commentaire-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+}
+{% endblock %}
+
+{% block extra_head %}
+{% if signalement.latitude %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- ===================== -->
+    <!-- EN-TÊTE -->
+    <!-- ===================== -->
+    <div class="detail-header">
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+                <div class="d-flex gap-2 mb-2 flex-wrap">
+                    {% if signalement.est_urgence %}
+                    <span class="badge bg-danger badge-urgence fs-6">
+                        <i class="fas fa-exclamation-circle me-1"></i>URGENCE
+                    </span>
+                    {% endif %}
+                    <span class="badge fs-6" style="background: {{ signalement.sous_categorie.categorie.couleur }};">
+                        <i class="fas {{ signalement.sous_categorie.categorie.icone }} me-1"></i>
+                        {{ signalement.sous_categorie.categorie.nom }}
+                    </span>
+                    <span class="badge fs-6
+                        {% if signalement.priorite == 'urgent' %}bg-danger
+                        {% elif signalement.priorite == 'moyen' %}bg-warning text-dark
+                        {% else %}bg-secondary{% endif %}">
+                        Priorité : {{ signalement.get_priorite_display }}
+                    </span>
+                    <span class="badge bg-{{ signalement.statut.couleur }} fs-6">
+                        {{ signalement.statut.nom_statut }}
+                    </span>
+                </div>
+                <h2 class="fw-bold mb-1">{{ signalement.titre }}</h2>
+                <p class="mb-0 opacity-75">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {{ signalement.quartier.nom }}, {{ signalement.quartier.commune.nom }}
+                    &nbsp;|&nbsp;
+                    <i class="fas fa-clock me-1"></i>
+                    {{ signalement.date_creation|date:"d/m/Y à H:i" }}
+                    {% if not signalement.est_anonyme and signalement.utilisateur %}
+                    &nbsp;|&nbsp;
+                    <i class="fas fa-user me-1"></i>
+                    {{ signalement.utilisateur.username }}
+                    {% else %}
+                    &nbsp;|&nbsp;
+                    <i class="fas fa-user-secret me-1"></i>Anonyme
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Bouton retour -->
+            <a href="{% url 'liste_signalements' %}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <!-- Colonne principale -->
+        <div class="col-lg-8">
+
+            <!-- ===================== -->
+            <!-- DESCRIPTION -->
+            <!-- ===================== -->
+            <div class="info-card">
+                <h6 class="section-title">
+                    <i class="fas fa-file-alt me-2"></i>Description
+                </h6>
+                <p class="mb-0">{{ signalement.description }}</p>
+                {% if signalement.adresse_manuelle %}
+                <hr>
+                <p class="mb-0 text-muted">
+                    <i class="fas fa-map-pin me-1"></i>
+                    <strong>Adresse :</strong> {{ signalement.adresse_manuelle }}
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- ===================== -->
+            <!-- PHOTOS -->
+            <!-- ===================== -->
+            {% if photos %}
+            <div class="info-card">
+                <h6 class="section-title">
+                    <i class="fas fa-images me-2"></i>Photos ({{ photos.count }})
+                </h6>
+                <div class="row g-2">
+                    {% for photo in photos %}
+                    <div class="col-md-4">
+                        <a href="{{ photo.fichier.url }}" target="_blank">
+                            <img src="{{ photo.fichier.url }}" class="img-fluid rounded"
+                                 style="height: 150px; width: 100%; object-fit: cover;"
+                                 alt="Photo signalement">
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ===================== -->
+            <!-- CARTE -->
+            <!-- ===================== -->
+            {% if signalement.latitude %}
+            <div class="info-card">
+                <h6 class="section-title">
+                    <i class="fas fa-map me-2"></i>Localisation GPS
+                </h6>
+                <div id="detailMap" style="height: 250px; border-radius: 10px;"></div>
+            </div>
+            {% endif %}
+
+            <!-- ===================== -->
+            <!-- VOTES -->
+            <!-- ===================== -->
+            <div class="info-card">
+                <h6 class="section-title">
+                    <i class="fas fa-thumbs-up me-2"></i>Confirmation citoyenne
+                </h6>
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="text-center">
+                        <div class="display-5 fw-bold text-success" id="nbVotesDisplay">
+                            {{ signalement.nb_votes }}
+                        </div>
+                        <small class="text-muted">citoyen{{ signalement.nb_votes|pluralize }} confirme{{ signalement.nb_votes|pluralize:"nt" }}</small>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'voter' signalement.pk %}" id="formVote">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-success vote-btn {% if a_vote %}voted{% endif %}"
+                                id="btnVote">
+                            <i class="fas fa-thumbs-up me-2"></i>
+                            {% if a_vote %}J'ai confirmé{% else %}Confirmer ce problème{% endif %}
+                        </button>
+                    </form>
+                    {% else %}
+                    <a href="{% url 'connexion' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Connectez-vous pour voter
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ===================== -->
+            <!-- COMMENTAIRES -->
+            <!-- ===================== -->
+            <div class="info-card">
+                <h6 class="section-title">
+                    <i class="fas fa-comments me-2"></i>
+                    Commentaires ({{ commentaires.count }})
+                </h6>
+
+                {% for commentaire in commentaires %}
+                <div class="commentaire-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>{{ commentaire.utilisateur.username }}</strong>
+                            <small class="text-muted ms-2">
+                                {{ commentaire.date_commentaire|date:"d/m/Y à H:i" }}
+                            </small>
+                        </div>
+                        {% if user == commentaire.utilisateur %}
+                        <form method="post"
+                              action="{% url 'supprimer_commentaire' commentaire.pk %}">
+                            {% csrf_token %}
+                            <button class="btn btn-link text-danger p-0 btn-sm"
+                                    onclick="return confirm('Supprimer ce commentaire ?')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                        {% if user.is_superuser %}
+                        <form method="post"
+                              action="{% url 'moderer_commentaire' commentaire.pk %}">
+                            {% csrf_token %}
+                            <button class="btn btn-link text-warning p-0 btn-sm">
+                                <i class="fas fa-ban" title="Modérer"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <p class="mb-0 mt-1">{{ commentaire.contenu }}</p>
+                </div>
+                {% empty %}
+                <p class="text-muted">Aucun commentaire pour l'instant.</p>
+                {% endfor %}
+
+                <!-- Formulaire commentaire -->
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'ajouter_commentaire' signalement.pk %}"
+                      class="mt-3">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <textarea name="contenu" class="form-control"
+                                  rows="3" placeholder="Votre commentaire..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-ua-primary btn-sm">
+                        <i class="fas fa-paper-plane me-1"></i>Commenter
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-info mt-2 mb-0 py-2">
+                    <a href="{% url 'connexion' %}">Connectez-vous</a> pour commenter.
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+
+            <!-- ===================== -->
+            <!-- INFO SIGNALEMENT -->
+            <!-- ===================== -->
+            <div class="info-card">
+                <h6 class="section-title">
+                    <i class="fas fa-info-circle me-2"></i>Informations
+                </h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted">Catégorie</td>
+                        <td><strong>{{ signalement.sous_categorie.categorie.nom }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Sous-catégorie</td>
+                        <td>{{ signalement.sous_categorie.nom }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Commune</td>
+                        <td>{{ signalement.quartier.commune.nom }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Quartier</td>
+                        <td>{{ signalement.quartier.nom }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Statut</td>
+                        <td>
+                            <span class="badge bg-{{ signalement.statut.couleur }}">
+                                {{ signalement.statut.nom_statut }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% if signalement.date_resolution %}
+                    <tr>
+                        <td class="text-muted">Résolu en</td>
+                        <td class="text-success fw-bold">
+                            {{ signalement.delai_traitement_jours }} jour{{ signalement.delai_traitement_jours|pluralize }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+
+            <!-- ===================== -->
+            <!-- HISTORIQUE -->
+            <!-- ===================== -->
+            <div class="info-card">
+                <h6 class="section-title">
+                    <i class="fas fa-history me-2"></i>Historique
+                </h6>
+                {% for h in historique %}
+                <div class="timeline-item">
+                    <div class="timeline-dot">
+                        <i class="fas fa-circle text-white" style="font-size: 0.4rem;"></i>
+                    </div>
+                    <small class="text-muted">{{ h.date_changement|date:"d/m/Y H:i" }}</small>
+                    <p class="mb-1">
+                        <span class="badge bg-{{ h.nouveau_statut.couleur }}">
+                            {{ h.nouveau_statut.nom_statut }}
+                        </span>
+                    </p>
+                    {% if h.commentaire_admin %}
+                    <small class="text-muted fst-italic">{{ h.commentaire_admin }}</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Admin : changer statut -->
+            {% if user.is_superuser %}
+            <div class="info-card border border-warning">
+                <h6 class="section-title text-warning">
+                    <i class="fas fa-cog me-2"></i>Actions administrateur
+                </h6>
+                <form method="post" action="{% url 'changer_statut' signalement.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <div class="mb-2">
+                        <select name="statut" class="form-control form-control-sm">
+                            {% for s in statuts %}
+                            <option value="{{ s.code }}"
+                                {% if s.code == signalement.statut.code %}selected{% endif %}>
+                                {{ s.nom_statut }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <textarea name="commentaire_admin" class="form-control form-control-sm"
+                                  rows="2" placeholder="Note de traitement..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-sm w-100">
+                        <i class="fas fa-save me-1"></i>Mettre à jour le statut
+                    </button>
+                </form>
+                <hr>
+                <a href="{% url 'moderer_signalement' signalement.pk %}"
+                   class="btn btn-danger btn-sm w-100">
+                    <i class="fas fa-trash-alt me-1"></i>Modérer ce signalement
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if signalement.latitude %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('detailMap').setView(
+    [{{ signalement.latitude }}, {{ signalement.longitude }}], 15
+);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.marker([{{ signalement.latitude }}, {{ signalement.longitude }}])
+    .addTo(map)
+    .bindPopup("{{ signalement.titre|escapejs }}")
+    .openPopup();
+</script>
+{% endif %}
+
+<!-- Vote AJAX -->
+<script>
+document.getElementById('formVote')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('nbVotesDisplay').textContent = data.nb_votes;
+        const btn = document.getElementById('btnVote');
+        if (data.a_vote) {
+            btn.classList.add('voted');
+            btn.innerHTML = '<i class="fas fa-thumbs-up me-2"></i>J\'ai confirmé';
+        } else {
+            btn.classList.remove('voted');
+            btn.innerHTML = '<i class="fas fa-thumbs-up me-2"></i>Confirmer ce problème';
+        }
+    });
+});
+</script>
+{% endblock %}
