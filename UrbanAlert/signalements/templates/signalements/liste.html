@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}Signalements — UrbanAlert{% endblock %}
+
+{% block extra_css_inline %}
+.filter-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    margin-bottom: 1.5rem;
+}
+.badge-priorite {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+.card-signalement .card-footer {
+    background: transparent;
+    border-top: 1px solid #f0f0f0;
+    font-size: 0.82rem;
+    color: #6c757d;
+}
+.urgence-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- TITRE -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="fw-bold mb-0">
+                <i class="fas fa-list-alt text-success me-2"></i>
+                Signalements
+            </h2>
+            <p class="text-muted mb-0">
+                <strong>{{ total }}</strong> signalement{{ total|pluralize }} trouvé{{ total|pluralize }}
+            </p>
+        </div>
+        <a href="{% url 'soumettre_signalement' %}" class="btn btn-ua-primary">
+            <i class="fas fa-plus me-1"></i>Signaler un problème
+        </a>
+    </div>
+
+    <!-- FILTRES -->
+    <div class="filter-card">
+        <form method="get" id="filtreForm">
+            <div class="row g-2 align-items-end">
+
+                <div class="col-md-2">
+                    {{ form.commune.label_tag }}
+                    {{ form.commune }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.categorie.label_tag }}
+                    {{ form.categorie }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.statut.label_tag }}
+                    {{ form.statut }}
+                </div>
+                <div class="col-md-2">
+                    {{ form.priorite.label_tag }}
+                    {{ form.priorite }}
+                </div>
+                <div class="col-md-1">
+                    {{ form.date_debut.label_tag }}
+                    {{ form.date_debut }}
+                </div>
+                <div class="col-md-1">
+                    {{ form.date_fin.label_tag }}
+                    {{ form.date_fin }}
+                </div>
+                <div class="col-md-1 d-flex gap-1">
+                    <button type="submit" class="btn btn-ua-primary btn-sm w-100">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    <a href="{% url 'liste_signalements' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- LISTE DES SIGNALEMENTS -->
+    <div class="row g-3">
+        {% for s in signalements %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card card-signalement h-100 position-relative">
+
+                <!-- Badge urgence -->
+                {% if s.est_urgence %}
+                <span class="badge bg-danger badge-urgence urgence-tag">
+                    <i class="fas fa-exclamation-circle me-1"></i>URGENCE
+                </span>
+                {% endif %}
+
+                <!-- Photo si disponible -->
+                {% with photo=s.photos.first %}
+                {% if photo %}
+                <img src="{{ photo.fichier.url }}" class="card-img-top"
+                     style="height: 160px; object-fit: cover;" alt="Photo signalement">
+                {% else %}
+                <div class="card-img-top d-flex align-items-center justify-content-center"
+                     style="height: 100px; background: {{ s.sous_categorie.categorie.couleur }}20;">
+                    <i class="fas {{ s.sous_categorie.categorie.icone }} fa-2x"
+                       style="color: {{ s.sous_categorie.categorie.couleur }};"></i>
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <div class="card-body">
+
+                    <!-- Catégorie badge -->
+                    <div class="mb-2">
+                        <span class="badge me-1"
+                              style="background: {{ s.sous_categorie.categorie.couleur }};">
+                            {{ s.sous_categorie.categorie.nom }}
+                        </span>
+                        <span class="badge badge-priorite
+                            {% if s.priorite == 'urgent' %}bg-danger
+                            {% elif s.priorite == 'moyen' %}bg-warning text-dark
+                            {% else %}bg-secondary{% endif %}">
+                            {{ s.get_priorite_display }}
+                        </span>
+                    </div>
+
+                    <!-- Titre -->
+                    <h6 class="card-title fw-bold mb-1">
+                        <a href="{% url 'detail_signalement' s.pk %}"
+                           class="text-decoration-none text-dark">
+                            {{ s.titre|truncatechars:60 }}
+                        </a>
+                    </h6>
+
+                    <!-- Description courte -->
+                    <p class="card-text text-muted small mb-2">
+                        {{ s.description|truncatechars:100 }}
+                    </p>
+
+                    <!-- Localisation -->
+                    <p class="small mb-0">
+                        <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                        {{ s.quartier.nom }}, {{ s.quartier.commune.nom }}
+                    </p>
+                </div>
+
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div>
+                        <!-- Statut -->
+                        <span class="badge bg-{{ s.statut.couleur }}">
+                            {{ s.statut.nom_statut }}
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Votes -->
+                        <span class="text-muted">
+                            <i class="fas fa-thumbs-up text-success me-1"></i>
+                            {{ s.nb_votes }}
+                        </span>
+                        <!-- Date -->
+                        <span class="text-muted">{{ s.date_creation|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Aucun signalement trouvé</h5>
+                <p class="text-muted">Modifiez vos filtres ou soumettez un nouveau signalement.</p>
+                <a href="{% url 'soumettre_signalement' %}" class="btn btn-ua-primary">
+                    <i class="fas fa-plus me-1"></i>Premier signalement
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

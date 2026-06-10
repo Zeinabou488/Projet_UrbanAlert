@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Soumettre un signalement — UrbanAlert{% endblock %}
+
+{% block extra_css_inline %}
+.form-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    margin-bottom: 1.5rem;
+}
+.section-title {
+    color: var(--ua-green-dark);
+    font-weight: 700;
+    border-bottom: 2px solid var(--ua-green);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.2rem;
+}
+.urgence-btn {
+    background: #fff0f0;
+    border: 2px solid var(--ua-red);
+    color: var(--ua-red);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.urgence-btn.active {
+    background: var(--ua-red);
+    color: #fff;
+}
+.map-preview {
+    height: 250px;
+    border-radius: 10px;
+    border: 2px solid #dee2e6;
+}
+{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet CSS pour la géolocalisation -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="row">
+        <div class="col-lg-8">
+
+            <!-- TITRE PAGE -->
+            <div class="mb-4">
+                <h2 class="fw-bold">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    Soumettre un signalement
+                </h2>
+                <p class="text-muted">
+                    Signalez un problème urbain à Conakry.
+                    Votre signalement sera transmis aux autorités compétentes.
+                </p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" id="formSignalement">
+                {% csrf_token %}
+
+                <!-- ============================= -->
+                <!-- BOUTON URGENCE -->
+                <!-- ============================= -->
+                <div class="form-section">
+                    <div class="urgence-btn" id="urgenceToggle" onclick="toggleUrgence()">
+                        <i class="fas fa-exclamation-circle fa-2x mb-2 d-block"></i>
+                        <strong>SITUATION D'URGENCE</strong>
+                        <p class="mb-0 small">Cliquez si ce problème représente un danger immédiat</p>
+                    </div>
+                    {{ form.est_urgence }}
+                </div>
+
+                <!-- ============================= -->
+                <!-- SECTION 1 : DESCRIPTION -->
+                <!-- ============================= -->
+                <div class="form-section">
+                    <h5 class="section-title">
+                        <i class="fas fa-pen me-2"></i>Description du problème
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.titre.label }} *</label>
+                        {{ form.titre }}
+                        {% if form.titre.errors %}
+                        <div class="text-danger small mt-1">{{ form.titre.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.categorie.label }} *</label>
+                            {{ form.categorie }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.sous_categorie.label }} *</label>
+                            {{ form.sous_categorie }}
+                            {% if form.sous_categorie.errors %}
+                            <div class="text-danger small mt-1">{{ form.sous_categorie.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.description.label }} *</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.priorite.label }}</label>
+                        {{ form.priorite }}
+                    </div>
+                </div>
+
+                <!-- ============================= -->
+                <!-- SECTION 2 : LOCALISATION -->
+                <!-- ============================= -->
+                <div class="form-section">
+                    <h5 class="section-title">
+                        <i class="fas fa-map-marker-alt me-2"></i>Localisation
+                    </h5>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.commune.label }} *</label>
+                            {{ form.commune }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ form.quartier.label }} *</label>
+                            {{ form.quartier }}
+                            {% if form.quartier.errors %}
+                            <div class="text-danger small mt-1">{{ form.quartier.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.adresse_manuelle.label }}</label>
+                        {{ form.adresse_manuelle }}
+                    </div>
+
+                    <!-- Carte Leaflet pour géolocalisation -->
+                    <div class="mb-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                                onclick="obtenirLocalisation()">
+                            <i class="fas fa-crosshairs me-1"></i>
+                            Utiliser ma position GPS
+                        </button>
+                        <small class="text-muted ms-2">Ou cliquez sur la carte</small>
+                    </div>
+                    <div id="mapSignalement" class="map-preview mb-2"></div>
+                    <small class="text-muted" id="coordsAffichage"></small>
+
+                    <!-- Champs cachés latitude/longitude -->
+                    {{ form.latitude }}
+                    {{ form.longitude }}
+                </div>
+
+                <!-- ============================= -->
+                <!-- SECTION 3 : PHOTO -->
+                <!-- ============================= -->
+                <div class="form-section">
+                    <h5 class="section-title">
+                        <i class="fas fa-camera me-2"></i>Photo du problème
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ form.photo.label }}</label>
+                        {{ form.photo }}
+                        <div class="form-text">Formats acceptés : JPG, PNG. Taille max : 5 Mo.</div>
+                        {% if form.photo.errors %}
+                        <div class="text-danger small mt-1">{{ form.photo.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Prévisualisation photo -->
+                    <div id="previewPhoto" class="d-none mt-2">
+                        <img id="imgPreview" src="" alt="Aperçu" class="img-fluid rounded"
+                             style="max-height: 200px;">
+                    </div>
+                </div>
+
+                <!-- ============================= -->
+                <!-- SECTION 4 : OPTIONS -->
+                <!-- ============================= -->
+                {% if user.is_authenticated %}
+                <div class="form-section">
+                    <h5 class="section-title">
+                        <i class="fas fa-user-secret me-2"></i>Options
+                    </h5>
+                    <div class="form-check">
+                        {{ form.est_anonyme }}
+                        <label class="form-check-label" for="{{ form.est_anonyme.id_for_label }}">
+                            {{ form.est_anonyme.label }}
+                        </label>
+                        <div class="form-text">
+                            Votre nom n'apparaîtra pas sur le signalement.
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Vous soumettez ce signalement de manière anonyme.
+                    <a href="{% url 'inscription' %}">Créez un compte</a>
+                    pour suivre vos signalements.
+                </div>
+                {% endif %}
+
+                <!-- ============================= -->
+                <!-- BOUTON SOUMETTRE -->
+                <!-- ============================= -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-ua-primary btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>
+                        Soumettre le signalement
+                    </button>
+                    <a href="{% url 'liste_signalements' %}" class="btn btn-outline-secondary">
+                        Annuler
+                    </a>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- ============================= -->
+        <!-- SIDEBAR INFO -->
+        <!-- ============================= -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold text-success">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Comment bien signaler ?
+                    </h6>
+                    <ul class="small text-muted ps-3">
+                        <li class="mb-2">Choisissez la catégorie qui correspond le mieux</li>
+                        <li class="mb-2">Décrivez précisément le problème</li>
+                        <li class="mb-2">Précisez la localisation exacte</li>
+                        <li class="mb-2">Ajoutez une photo si possible</li>
+                        <li>Utilisez le bouton urgence pour les dangers immédiats</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="fw-bold">
+                        <i class="fas fa-tags me-2 text-success"></i>
+                        9 catégories disponibles
+                    </h6>
+                    {% for cat in categories %}
+                    <span class="badge me-1 mb-1" style="background: {{ cat.couleur }};">
+                        {{ cat.nom }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// =====================
+// CARTE LEAFLET
+// =====================
+const map = L.map('mapSignalement').setView([9.5370, -13.6773], 12);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+}).addTo(map);
+
+let markerCourant = null;
+
+// Clic sur la carte = placer le marqueur
+map.on('click', function(e) {
+    placerMarqueur(e.latlng.lat, e.latlng.lng);
+});
+
+function placerMarqueur(lat, lng) {
+    if (markerCourant) map.removeLayer(markerCourant);
+    markerCourant = L.marker([lat, lng]).addTo(map);
+    document.getElementById('id_latitude').value = lat.toFixed(6);
+    document.getElementById('id_longitude').value = lng.toFixed(6);
+    document.getElementById('coordsAffichage').textContent =
+        `Position sélectionnée : ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+}
+
+// Géolocalisation GPS
+function obtenirLocalisation() {
+    if (!navigator.geolocation) {
+        alert("La géolocalisation n'est pas supportée par votre navigateur.");
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            map.setView([lat, lng], 15);
+            placerMarqueur(lat, lng);
+        },
+        () => alert("Impossible d'obtenir votre position.")
+    );
+}
+
+// =====================
+// FILTRES DYNAMIQUES
+// =====================
+
+// Chargement des sous-catégories selon la catégorie
+document.getElementById('id_categorie').addEventListener('change', function() {
+    const catId = this.value;
+    const select = document.getElementById('id_sous_categorie');
+    select.innerHTML = '<option value="">-- Choisir une sous-catégorie --</option>';
+
+    if (!catId) return;
+
+    fetch(`/api/sous-categories/${catId}/`)
+        .then(r => r.json())
+        .then(data => {
+            data.sous_categories.forEach(sc => {
+                const opt = document.createElement('option');
+                opt.value = sc.id;
+                opt.textContent = sc.nom;
+                select.appendChild(opt);
+            });
+        });
+});
+
+// Chargement des quartiers selon la commune
+document.getElementById('id_commune').addEventListener('change', function() {
+    const comId = this.value;
+    const select = document.getElementById('id_quartier');
+    select.innerHTML = '<option value="">-- Choisir un quartier --</option>';
+
+    if (!comId) return;
+
+    fetch(`/api/quartiers/${comId}/`)
+        .then(r => r.json())
+        .then(data => {
+            data.quartiers.forEach(q => {
+                const opt = document.createElement('option');
+                opt.value = q.id;
+                opt.textContent = q.nom;
+                select.appendChild(opt);
+            });
+        });
+});
+
+// =====================
+// BOUTON URGENCE
+// =====================
+function toggleUrgence() {
+    const btn = document.getElementById('urgenceToggle');
+    const chk = document.getElementById('id_est_urgence');
+    chk.checked = !chk.checked;
+    btn.classList.toggle('active', chk.checked);
+}
+
+// Masquer le checkbox natif
+document.getElementById('id_est_urgence').style.display = 'none';
+
+// =====================
+// PRÉVISUALISATION PHOTO
+// =====================
+document.querySelector('input[type="file"]')?.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('imgPreview').src = e.target.result;
+            document.getElementById('previewPhoto').classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}
