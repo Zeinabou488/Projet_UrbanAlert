@@ -1,0 +1,56 @@
+[
+  {"model": "signalements.statutsignalement", "pk": 1, "fields": {"code": "en_attente", "nom_statut": "En attente", "ordre": 1, "couleur": "warning"}},
+  {"model": "signalements.statutsignalement", "pk": 2, "fields": {"code": "en_cours",   "nom_statut": "En cours",   "ordre": 2, "couleur": "primary"}},
+  {"model": "signalements.statutsignalement", "pk": 3, "fields": {"code": "resolu",     "nom_statut": "Résolu",     "ordre": 3, "couleur": "success"}},
+  {"model": "signalements.statutsignalement", "pk": 4, "fields": {"code": "rejete",     "nom_statut": "Rejeté",     "ordre": 4, "couleur": "danger"}},
+
+  {"model": "signalements.categorieprobleme", "pk": 1, "fields": {"nom": "Voirie & Infrastructure",      "description": "Routes, ponts, caniveaux, trottoirs, éclairage",       "couleur": "#e74c3c", "icone": "fa-road"}},
+  {"model": "signalements.categorieprobleme", "pk": 2, "fields": {"nom": "Eau & Assainissement",         "description": "Coupures SEG, fuites, eau non potable, fosses",         "couleur": "#3498db", "icone": "fa-tint"}},
+  {"model": "signalements.categorieprobleme", "pk": 3, "fields": {"nom": "Électricité EDG",              "description": "Délestages, poteaux, fils nus, transformateurs",         "couleur": "#f39c12", "icone": "fa-bolt"}},
+  {"model": "signalements.categorieprobleme", "pk": 4, "fields": {"nom": "Hygiène & Déchets",            "description": "Dépôts sauvages, marchés insalubres, caniveaux",         "couleur": "#27ae60", "icone": "fa-trash"}},
+  {"model": "signalements.categorieprobleme", "pk": 5, "fields": {"nom": "Bâtiments & Domaine public",   "description": "Constructions illégales, bâtiments dangereux",           "couleur": "#8e44ad", "icone": "fa-building"}},
+  {"model": "signalements.categorieprobleme", "pk": 6, "fields": {"nom": "Environnement & Catastrophes", "description": "Inondations, érosion, pollution des eaux",               "couleur": "#16a085", "icone": "fa-leaf"}},
+  {"model": "signalements.categorieprobleme", "pk": 7, "fields": {"nom": "Santé Publique",               "description": "Paludisme, épidémies, centres de santé, pharmacies",    "couleur": "#e91e63", "icone": "fa-heartbeat"}},
+  {"model": "signalements.categorieprobleme", "pk": 8, "fields": {"nom": "Sécurité & Ordre public",      "description": "Zones à risque, accidents, barrages abusifs",            "couleur": "#c0392b", "icone": "fa-shield-alt"}},
+  {"model": "signalements.categorieprobleme", "pk": 9, "fields": {"nom": "Services Publics",             "description": "Écoles, hôpitaux, état civil, mairies",                 "couleur": "#2980b9", "icone": "fa-landmark"}},
+
+  {"model": "signalements.souscategorie", "pk": 1,  "fields": {"categorie": 1, "nom": "Routes dégradées",        "description": "Nids-de-poule, revêtement défoncé"}},
+  {"model": "signalements.souscategorie", "pk": 2,  "fields": {"categorie": 1, "nom": "Ponts endommagés",         "description": "Structure compromise ou dangereuse"}},
+  {"model": "signalements.souscategorie", "pk": 3,  "fields": {"categorie": 1, "nom": "Caniveaux bouchés",        "description": "Obstruction causant des inondations"}},
+  {"model": "signalements.souscategorie", "pk": 4,  "fields": {"categorie": 1, "nom": "Trottoirs inaccessibles",  "description": "Trottoirs occupés ou dégradés"}},
+  {"model": "signalements.souscategorie", "pk": 5,  "fields": {"categorie": 1, "nom": "Éclairage public défaillant","description": "Lampadaires en panne"}},
+
+  {"model": "signalements.souscategorie", "pk": 6,  "fields": {"categorie": 2, "nom": "Coupure d'eau SEG",        "description": "Interruption de la distribution d'eau"}},
+  {"model": "signalements.souscategorie", "pk": 7,  "fields": {"categorie": 2, "nom": "Fuite d'eau",              "description": "Fuite sur canalisation principale"}},
+  {"model": "signalements.souscategorie", "pk": 8,  "fields": {"categorie": 2, "nom": "Eau non potable",          "description": "Qualité de l'eau compromise"}},
+  {"model": "signalements.souscategorie", "pk": 9,  "fields": {"categorie": 2, "nom": "Fosse septique",           "description": "Fosse pleine ou défaillante"}},
+
+  {"model": "signalements.souscategorie", "pk": 10, "fields": {"categorie": 3, "nom": "Délestage EDG",            "description": "Coupure électrique prolongée"}},
+  {"model": "signalements.souscategorie", "pk": 11, "fields": {"categorie": 3, "nom": "Poteau électrique",        "description": "Poteau tombé ou penché"}},
+  {"model": "signalements.souscategorie", "pk": 12, "fields": {"categorie": 3, "nom": "Fils électriques nus",     "description": "Câbles exposés dangereux"}},
+  {"model": "signalements.souscategorie", "pk": 13, "fields": {"categorie": 3, "nom": "Transformateur en panne",  "description": "Transformateur défaillant"}},
+
+  {"model": "signalements.souscategorie", "pk": 14, "fields": {"categorie": 4, "nom": "Dépôt sauvage d'ordures",  "description": "Décharge sauvage non autorisée"}},
+  {"model": "signalements.souscategorie", "pk": 15, "fields": {"categorie": 4, "nom": "Marché insalubre",         "description": "Conditions d'hygiène déplorables"}},
+  {"model": "signalements.souscategorie", "pk": 16, "fields": {"categorie": 4, "nom": "Caniveau malodorant",      "description": "Caniveau obstrué et nauséabond"}},
+
+  {"model": "signalements.souscategorie", "pk": 17, "fields": {"categorie": 5, "nom": "Construction illégale",    "description": "Bâtiment sans permis de construire"}},
+  {"model": "signalements.souscategorie", "pk": 18, "fields": {"categorie": 5, "nom": "Bâtiment dangereux",       "description": "Structure menaçant de s'effondrer"}},
+  {"model": "signalements.souscategorie", "pk": 19, "fields": {"categorie": 5, "nom": "Occupation illégale",      "description": "Occupation de l'espace public"}},
+
+  {"model": "signalements.souscategorie", "pk": 20, "fields": {"categorie": 6, "nom": "Inondation",               "description": "Zone inondée ou à risque d'inondation"}},
+  {"model": "signalements.souscategorie", "pk": 21, "fields": {"categorie": 6, "nom": "Érosion",                  "description": "Glissement de terrain ou érosion côtière"}},
+  {"model": "signalements.souscategorie", "pk": 22, "fields": {"categorie": 6, "nom": "Pollution des eaux",       "description": "Contamination des eaux de surface"}},
+
+  {"model": "signalements.souscategorie", "pk": 23, "fields": {"categorie": 7, "nom": "Foyer de paludisme",       "description": "Zone à forte prévalence de paludisme"}},
+  {"model": "signalements.souscategorie", "pk": 24, "fields": {"categorie": 7, "nom": "Épidémie",                 "description": "Foyer de maladie contagieuse"}},
+  {"model": "signalements.souscategorie", "pk": 25, "fields": {"categorie": 7, "nom": "Centre de santé fermé",    "description": "Structure sanitaire non fonctionnelle"}},
+
+  {"model": "signalements.souscategorie", "pk": 26, "fields": {"categorie": 8, "nom": "Zone à risque",            "description": "Secteur dangereux pour la population"}},
+  {"model": "signalements.souscategorie", "pk": 27, "fields": {"categorie": 8, "nom": "Accident de la route",     "description": "Accident signalé ou point accidentogène"}},
+  {"model": "signalements.souscategorie", "pk": 28, "fields": {"categorie": 8, "nom": "Barrage abusif",           "description": "Contrôle routier abusif"}},
+
+  {"model": "signalements.souscategorie", "pk": 29, "fields": {"categorie": 9, "nom": "École non fonctionnelle",  "description": "Établissement scolaire fermé ou dégradé"}},
+  {"model": "signalements.souscategorie", "pk": 30, "fields": {"categorie": 9, "nom": "Hôpital en difficulté",    "description": "Hôpital manquant de personnel ou matériel"}},
+  {"model": "signalements.souscategorie", "pk": 31, "fields": {"categorie": 9, "nom": "Mairie inaccessible",      "description": "Service municipal non fonctionnel"}}
+]
