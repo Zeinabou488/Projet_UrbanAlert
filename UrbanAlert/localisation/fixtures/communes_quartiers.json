@@ -1,0 +1,39 @@
+[
+  {"model": "localisation.commune", "pk": 1, "fields": {"nom": "Kaloum", "description": "Commune centrale de Conakry, centre des affaires"}},
+  {"model": "localisation.commune", "pk": 2, "fields": {"nom": "Dixinn", "description": "Commune universitaire de Conakry"}},
+  {"model": "localisation.commune", "pk": 3, "fields": {"nom": "Ratoma", "description": "Commune la plus peuplée de Conakry"}},
+  {"model": "localisation.commune", "pk": 4, "fields": {"nom": "Matam", "description": "Commune commerciale de Conakry"}},
+  {"model": "localisation.commune", "pk": 5, "fields": {"nom": "Matoto", "description": "Commune périphérique de Conakry"}},
+
+  {"model": "localisation.quartier", "pk": 1, "fields": {"commune": 1, "nom": "Almamya"}},
+  {"model": "localisation.quartier", "pk": 2, "fields": {"commune": 1, "nom": "Boulbinet"}},
+  {"model": "localisation.quartier", "pk": 3, "fields": {"commune": 1, "nom": "Coronthie"}},
+  {"model": "localisation.quartier", "pk": 4, "fields": {"commune": 1, "nom": "Sandervalia"}},
+  {"model": "localisation.quartier", "pk": 5, "fields": {"commune": 1, "nom": "Kaloum Centre"}},
+
+  {"model": "localisation.quartier", "pk": 6, "fields": {"commune": 2, "nom": "Belle-Vue"}},
+  {"model": "localisation.quartier", "pk": 7, "fields": {"commune": 2, "nom": "Dixinn Centre"}},
+  {"model": "localisation.quartier", "pk": 8, "fields": {"commune": 2, "nom": "Hamdallaye"}},
+  {"model": "localisation.quartier", "pk": 9, "fields": {"commune": 2, "nom": "Minière"}},
+  {"model": "localisation.quartier", "pk": 10, "fields": {"commune": 2, "nom": "Landreah"}},
+
+  {"model": "localisation.quartier", "pk": 11, "fields": {"commune": 3, "nom": "Bambeto"}},
+  {"model": "localisation.quartier", "pk": 12, "fields": {"commune": 3, "nom": "Cosa"}},
+  {"model": "localisation.quartier", "pk": 13, "fields": {"commune": 3, "nom": "Enco 5"}},
+  {"model": "localisation.quartier", "pk": 14, "fields": {"commune": 3, "nom": "Kipé"}},
+  {"model": "localisation.quartier", "pk": 15, "fields": {"commune": 3, "nom": "Ratoma Centre"}},
+  {"model": "localisation.quartier", "pk": 16, "fields": {"commune": 3, "nom": "Sonfonia"}},
+  {"model": "localisation.quartier", "pk": 17, "fields": {"commune": 3, "nom": "Wanindara"}},
+
+  {"model": "localisation.quartier", "pk": 18, "fields": {"commune": 4, "nom": "Bonfi"}},
+  {"model": "localisation.quartier", "pk": 19, "fields": {"commune": 4, "nom": "Cimenterie"}},
+  {"model": "localisation.quartier", "pk": 20, "fields": {"commune": 4, "nom": "Dar-es-Salam"}},
+  {"model": "localisation.quartier", "pk": 21, "fields": {"commune": 4, "nom": "Matam Centre"}},
+  {"model": "localisation.quartier", "pk": 22, "fields": {"commune": 4, "nom": "Koloma"}},
+
+  {"model": "localisation.quartier", "pk": 23, "fields": {"commune": 5, "nom": "Kakimbo"}},
+  {"model": "localisation.quartier", "pk": 24, "fields": {"commune": 5, "nom": "Kissosso"}},
+  {"model": "localisation.quartier", "pk": 25, "fields": {"commune": 5, "nom": "Lambanyi"}},
+  {"model": "localisation.quartier", "pk": 26, "fields": {"commune": 5, "nom": "Matoto Centre"}},
+  {"model": "localisation.quartier", "pk": 27, "fields": {"commune": 5, "nom": "Yimbaya"}}
+]
