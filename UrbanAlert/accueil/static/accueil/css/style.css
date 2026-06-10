@@ -1,0 +1,194 @@
+/* ===================================== */
+/* RESET GENERAL */
+/* ===================================== */
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* ===================================== */
+/* STYLE GLOBAL BODY */
+/* ===================================== */
+
+body{
+
+    /* Police moderne */
+    font-family: Arial, Helvetica, sans-serif;
+
+    /* Hauteur totale écran */
+    height: 100vh;
+
+    /* Fond dégradé moderne */
+    background: linear-gradient(
+        135deg,
+        #0f172a,
+        #1e293b,
+        #334155
+    );
+
+    /* Couleur texte */
+    color: white;
+}
+
+
+/* ===================================== */
+/* HERO SECTION */
+/* ===================================== */
+
+.hero{
+
+    /* Centrage horizontal */
+    display: flex;
+
+    /* Centrage vertical */
+    justify-content: center;
+    align-items: center;
+
+    /* Pleine hauteur écran */
+    height: 100vh;
+
+    /* Espacement intérieur */
+    padding: 20px;
+}
+
+
+/* ===================================== */
+/* CONTENU PRINCIPAL */
+/* ===================================== */
+
+.hero-content{
+
+    /* Alignement texte */
+    text-align: center;
+
+    /* Largeur maximale */
+    max-width: 700px;
+}
+
+
+/* ===================================== */
+/* TITRE PRINCIPAL */
+/* ===================================== */
+
+.hero-content h1{
+
+    /* Taille du titre */
+    font-size: 70px;
+
+    /* Espacement bas */
+    margin-bottom: 20px;
+
+    /* Gras */
+    font-weight: bold;
+}
+
+
+/* ===================================== */
+/* DESCRIPTION */
+/* ===================================== */
+
+.hero-content p{
+
+    /* Taille texte */
+    font-size: 22px;
+
+    /* Hauteur ligne */
+    line-height: 1.6;
+
+    /* Espacement bas */
+    margin-bottom: 40px;
+
+    /* Couleur légèrement claire */
+    color: #cbd5e1;
+}
+
+
+/* ===================================== */
+/* CONTENEUR BOUTONS */
+/* ===================================== */
+
+.buttons{
+
+    display: flex;
+
+    /* Centrage */
+    justify-content: center;
+
+    /* Espacement entre boutons */
+    gap: 20px;
+
+    /* Responsive mobile */
+    flex-wrap: wrap;
+}
+
+
+/* ===================================== */
+/* STYLE GENERAL BOUTONS */
+/* ===================================== */
+
+.btn{
+
+    /* Suppression soulignement */
+    text-decoration: none;
+
+    /* Espacement interne */
+    padding: 15px 35px;
+
+    /* Coins arrondis */
+    border-radius: 10px;
+
+    /* Taille texte */
+    font-size: 18px;
+
+    /* Gras */
+    font-weight: bold;
+
+    /* Animation hover */
+    transition: 0.3s ease;
+}
+
+
+/* ===================================== */
+/* BOUTON CONNEXION */
+/* ===================================== */
+
+.login-btn{
+
+    background-color: white;
+    color: #0f172a;
+}
+
+
+/* Hover connexion */
+
+.login-btn:hover{
+
+    background-color: #e2e8f0;
+
+    transform: translateY(-3px);
+}
+
+
+/* ===================================== */
+/* BOUTON INSCRIPTION */
+/* ===================================== */
+
+.register-btn{
+
+    background-color: #2563eb;
+
+    color: white;
+}
+
+
+/* Hover inscription */
+
+.register-btn:hover{
+
+    background-color: #1d4ed8;
+
+    transform: translateY(-3px);
+}

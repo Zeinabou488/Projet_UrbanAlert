@@ -1,0 +1,48 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Connexion - UrbanAlert</title>
+
+    <link rel="stylesheet"
+          href="{% static 'accueil/css/style.css' %}">
+
+</head>
+
+<body>
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <h1>Connexion</h1>
+
+            <p>
+                Connectez-vous à votre compte UrbanAlert.
+            </p>
+
+            <div class="buttons">
+
+                <a href="{% url 'accueil' %}"
+                   class="btn login-btn">
+
+                    Retour accueil
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</body>
+</html>

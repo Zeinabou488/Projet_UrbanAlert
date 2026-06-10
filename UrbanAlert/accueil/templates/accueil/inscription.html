@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Inscription - UrbanAlert</title>
+
+    <link rel="stylesheet"
+          href="{% static 'accueil/css/style.css' %}">
+
+</head>
+
+<body>
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <h1>Inscription</h1>
+
+            <p>
+                Créez votre compte UrbanAlert
+                pour participer à votre communauté.
+            </p>
+
+            <div class="buttons">
+
+                <a href="{% url 'accueil' %}"
+                   class="btn login-btn">
+
+                    Retour accueil
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</body>
+</html>
