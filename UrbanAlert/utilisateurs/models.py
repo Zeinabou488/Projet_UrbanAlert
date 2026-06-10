@@ -128,12 +128,22 @@ class Utilisateur(AbstractUser):
     # =========================
 
     # DateTimeField = stocke date + heure
+# DATE DE CREATION
     date_creation = models.DateTimeField(
-
-        # auto_now_add=True
-        # ajoute automatiquement la date lors de la création
         auto_now_add=True
     )
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        blank=True,
+        related_name='utilisateur_set'
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        blank=True,
+        related_name='utilisateur_set'
+    )
+
 
 
 

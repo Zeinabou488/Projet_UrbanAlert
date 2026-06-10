@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des signalements</title>
+</head>
+<body>
+    <h1>Signalements</h1>
+    {% if signalements %}
+        <table border="1">
+            <tr>
+                <th>Titre</th>
+                <th>Localisation</th>
+                <th>Statut</th>
+                <th>Date</th>
+            </tr>
+            {% for s in signalements %}
+            <tr>
+                <td>{{ s.titre }}</td>
+                <td>{{ s.localisation }}</td>
+                <td>{{ s.statut }}</td>
+                <td>{{ s.date_creation }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Aucun signalement pour le moment.</p>
+    {% endif %}
+</body>
+</html>
