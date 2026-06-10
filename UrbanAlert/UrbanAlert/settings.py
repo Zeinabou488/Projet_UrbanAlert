@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'urbanalert.urls'
+ROOT_URLCONF = 'UrbanAlert.urls'
 
 TEMPLATES = [
     {
@@ -76,16 +76,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'urbanalert.wsgi.application'
+WSGI_APPLICATION = 'UrbanAlert.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
- DATABASES = {
+DATABASES = {
      'default': {
           'ENGINE': 'django.db.backends.postgresql',
-          'NAME': 'UrbanAlert_db',
+          'NAME': 'alert',
           'USER': 'postgres',
           'PASSWORD': '12345',
           'HOST': 'localhost',
