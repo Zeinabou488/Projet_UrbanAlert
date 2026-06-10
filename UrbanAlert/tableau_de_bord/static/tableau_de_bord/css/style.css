@@ -1,0 +1,206 @@
+/* ================================= */
+/* RESET GENERAL */
+/* ================================= */
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* ================================= */
+/* BODY */
+/* ================================= */
+
+body{
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    min-height: 100vh;
+
+    background: linear-gradient(
+        135deg,
+        #0f172a,
+        #1e293b,
+        #334155
+    );
+
+    color: white;
+}
+
+
+/* ================================= */
+/* CONTENEUR PRINCIPAL */
+/* ================================= */
+
+.dashboard-container{
+
+    display: flex;
+
+    min-height: 100vh;
+}
+
+
+/* ================================= */
+/* SIDEBAR */
+/* ================================= */
+
+.sidebar{
+
+    width: 260px;
+
+    background-color: rgba(15, 23, 42, 0.95);
+
+    padding: 30px 20px;
+
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+
+/* TITRE SIDEBAR */
+
+.sidebar h2{
+
+    margin-bottom: 40px;
+
+    font-size: 28px;
+
+    color: white;
+}
+
+
+/* MENU */
+
+.sidebar ul{
+
+    list-style: none;
+}
+
+
+/* ELEMENT MENU */
+
+.sidebar ul li{
+
+    margin-bottom: 20px;
+}
+
+
+/* LIENS MENU */
+
+.sidebar ul li a{
+
+    color: #cbd5e1;
+
+    text-decoration: none;
+
+    font-size: 18px;
+
+    transition: 0.3s;
+}
+
+
+/* HOVER MENU */
+
+.sidebar ul li a:hover{
+
+    color: #38bdf8;
+
+    padding-left: 5px;
+}
+
+
+/* ================================= */
+/* CONTENU PRINCIPAL */
+/* ================================= */
+
+.main-content{
+
+    flex: 1;
+
+    padding: 40px;
+}
+
+
+/* TITRE PRINCIPAL */
+
+.main-content h1{
+
+    font-size: 40px;
+
+    margin-bottom: 20px;
+}
+
+
+/* TEXTE */
+
+.main-content p{
+
+    font-size: 20px;
+
+    color: #cbd5e1;
+
+    margin-bottom: 40px;
+}
+
+
+/* ================================= */
+/* CARTES DASHBOARD */
+/* ================================= */
+
+.cards{
+
+    display: flex;
+
+    gap: 20px;
+
+    flex-wrap: wrap;
+}
+
+
+/* CARTE */
+
+.card{
+
+    background-color: rgba(255,255,255,0.08);
+
+    padding: 25px;
+
+    border-radius: 15px;
+
+    min-width: 220px;
+
+    backdrop-filter: blur(5px);
+
+    transition: 0.3s;
+}
+
+
+/* HOVER CARTE */
+
+.card:hover{
+
+    transform: translateY(-5px);
+
+    background-color: rgba(255,255,255,0.12);
+}
+
+
+/* TITRE CARTE */
+
+.card h3{
+
+    margin-bottom: 15px;
+
+    color: #38bdf8;
+}
+
+
+/* VALEUR CARTE */
+
+.card p{
+
+    font-size: 30px;
+
+    color: white;
+}

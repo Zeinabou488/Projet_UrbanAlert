@@ -1,0 +1,138 @@
+{% extends 'tableau_de_bord/base_admin.html' %}
+
+{% block title %}Signalements — UrbanAlert Admin{% endblock %}
+{% block page_title %}Gestion des signalements ({{ total }}){% endblock %}
+
+{% block content %}
+
+<!-- FILTRES -->
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-2">
+                {{ form.commune }}
+            </div>
+            <div class="col-md-2">
+                {{ form.categorie }}
+            </div>
+            <div class="col-md-2">
+                {{ form.statut }}
+            </div>
+            <div class="col-md-2">
+                {{ form.priorite }}
+            </div>
+            <div class="col-md-1">
+                {{ form.date_debut }}
+            </div>
+            <div class="col-md-1">
+                {{ form.date_fin }}
+            </div>
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-success btn-sm">
+                    <i class="fas fa-filter me-1"></i>Filtrer
+                </button>
+                <a href="{% url 'dashboard_signalements' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TABLEAU -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Titre</th>
+                        <th>Catégorie</th>
+                        <th>Commune</th>
+                        <th>Statut</th>
+                        <th>Priorité</th>
+                        <th>Votes</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in signalements %}
+                    <tr>
+                        <td class="text-muted small">{{ s.id }}</td>
+                        <td>
+                            <a href="{% url 'detail_signalement_admin' s.pk %}"
+                               class="text-decoration-none fw-semibold text-dark">
+                                {{ s.titre|truncatechars:40 }}
+                            </a>
+                            {% if s.est_urgence %}
+                            <span class="badge bg-danger ms-1 badge-urgence">URGENCE</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  style="background: {{ s.sous_categorie.categorie.couleur }};">
+                                {{ s.sous_categorie.categorie.nom }}
+                            </span>
+                        </td>
+                        <td>{{ s.quartier.commune.nom }}</td>
+                        <td>
+                            <span class="badge bg-{{ s.statut.couleur }}">
+                                {{ s.statut.nom_statut }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if s.priorite == 'urgent' %}bg-danger
+                                {% elif s.priorite == 'moyen' %}bg-warning text-dark
+                                {% else %}bg-secondary{% endif %}">
+                                {{ s.get_priorite_display }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <i class="fas fa-thumbs-up text-success me-1"></i>{{ s.nb_votes }}
+                        </td>
+                        <td class="small text-muted">{{ s.date_creation|date:"d/m/Y" }}</td>
+                        <td>
+                            <!-- Changement rapide de statut -->
+                            <form method="post" action="{% url 'changer_statut' s.pk %}"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="next"
+                                       value="{% url 'dashboard_signalements' %}{{ request.GET.urlencode }}">
+                                <select name="statut" onchange="this.form.submit()"
+                                        class="form-select form-select-sm d-inline-block"
+                                        style="width: 120px;">
+                                    {% for st in statuts %}
+                                    <option value="{{ st.code }}"
+                                        {% if st.code == s.statut.code %}selected{% endif %}>
+                                        {{ st.nom_statut }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                            <a href="{% url 'detail_signalement_admin' s.pk %}"
+                               class="btn btn-outline-primary btn-sm ms-1">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'moderer_signalement' s.pk %}"
+                               class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <br>Aucun signalement trouvé
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

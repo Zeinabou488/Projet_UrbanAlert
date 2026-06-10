@@ -1,0 +1,201 @@
+{% extends 'tableau_de_bord/base_admin.html' %}
+
+{% block title %}Détail signalement #{{ signalement.pk }} — Admin{% endblock %}
+{% block page_title %}Signalement #{{ signalement.pk }}{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+
+    <div class="col-lg-8">
+
+        <!-- INFOS PRINCIPALES -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center"
+                 style="background: {{ signalement.sous_categorie.categorie.couleur }}20;">
+                <span>
+                    <span class="badge" style="background: {{ signalementa.sous_categorie.categorie.couleur }};">
+                        {{ signalement.sous_categorie.categorie.nom }}
+                    </span>
+                    &nbsp;{{ signalement.titre }}
+                    {% if signalement.est_urgence %}
+                    <span class="badge bg-danger ms-2">URGENCE</span>
+                    {% endif %}
+                </span>
+                <span class="badge bg-{{ signalement.statut.couleur }} fs-6">
+                    {{ signalement.statut.nom_statut }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p>{{ signalement.description }}</p>
+                <div class="row text-muted small">
+                    <div class="col-md-4">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        {{ signalement.quartier.nom }}, {{ signalement.quartier.commune.nom }}
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ signalement.date_creation|date:"d/m/Y H:i" }}
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-user me-1"></i>
+                        {% if signalement.est_anonyme %}Anonyme
+                        {% elif signalement.utilisateur %}{{ signalement.utilisateur.username }}
+                        {% else %}—{% endif %}
+                    </div>
+                </div>
+                {% if signalement.adresse_manuelle %}
+                <p class="mt-2 mb-0 text-muted small">
+                    <i class="fas fa-map-pin me-1"></i>{{ signalement.adresse_manuelle }}
+                </p>
+                {% endif %}
+                <div class="mt-2">
+                    <span class="badge {% if signalement.priorite == 'urgent' %}bg-danger
+                        {% elif signalement.priorite == 'moyen' %}bg-warning text-dark
+                        {% else %}bg-secondary{% endif %}">
+                        Priorité : {{ signalement.get_priorite_display }}
+                    </span>
+                    <span class="badge bg-dark ms-1">
+                        <i class="fas fa-thumbs-up me-1"></i>{{ signalement.nb_votes }} vote(s)
+                    </span>
+                    {% if signalement.date_resolution %}
+                    <span class="badge bg-success ms-1">
+                        Résolu en {{ signalement.delai_traitement_jours }} jour(s)
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- PHOTOS -->
+        {% if photos %}
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header fw-bold">
+                <i class="fas fa-images me-2"></i>Photos
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% for photo in photos %}
+                    <div class="col-md-3">
+                        <a href="{{ photo.fichier.url }}" target="_blank">
+                            <img src="{{ photo.fichier.url }}" class="img-fluid rounded"
+                                 style="height:120px; width:100%; object-fit:cover;">
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- COMMENTAIRES -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header fw-bold">
+                <i class="fas fa-comments me-2"></i>Commentaires ({{ commentaires.count }})
+            </div>
+            <div class="card-body">
+                {% for c in commentaires %}
+                <div class="d-flex justify-content-between align-items-start mb-2 p-2 bg-light rounded">
+                    <div>
+                        <strong>{{ c.utilisateur.username }}</strong>
+                        <small class="text-muted ms-2">{{ c.date_commentaire|date:"d/m/Y H:i" }}</small>
+                        {% if c.est_modere %}<span class="badge bg-warning ms-1">Modéré</span>{% endif %}
+                        <p class="mb-0 mt-1">{{ c.contenu }}</p>
+                    </div>
+                    {% if not c.est_modere %}
+                    <form method="post" action="{% url 'moderer_commentaire' c.pk %}">
+                        {% csrf_token %}
+                        <button class="btn btn-warning btn-sm">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted">Aucun commentaire.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <!-- ACTIONS ADMIN -->
+        <div class="card border-warning border-2 shadow-sm mb-3">
+            <div class="card-header bg-warning fw-bold">
+                <i class="fas fa-tools me-2"></i>Changer le statut
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'changer_statut' signalement.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next"
+                           value="{% url 'detail_signalement_admin' signalement.pk %}">
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small">Nouveau statut</label>
+                        <select name="statut" class="form-control form-control-sm">
+                            {% for s in statuts %}
+                            <option value="{{ s.code }}"
+                                {% if s.code == signalement.statut.code %}selected{% endif %}>
+                                {{ s.nom_statut }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Note de traitement</label>
+                        <textarea name="commentaire_admin" class="form-control form-control-sm"
+                                  rows="3" placeholder="Remarque optionnelle..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">
+                        <i class="fas fa-save me-1"></i>Enregistrer
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- HISTORIQUE -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header fw-bold">
+                <i class="fas fa-history me-2"></i>Historique des statuts
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for h in historique %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <span class="badge bg-{{ h.nouveau_statut.couleur }}">
+                                {{ h.nouveau_statut.nom_statut }}
+                            </span>
+                            <small class="text-muted">{{ h.date_changement|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        {% if h.admin %}
+                        <small class="text-muted">par {{ h.admin.username }}</small>
+                        {% endif %}
+                        {% if h.commentaire_admin %}
+                        <p class="mb-0 small fst-italic">{{ h.commentaire_admin }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- MODÉRATION -->
+        <div class="card border-danger border-2 shadow-sm">
+            <div class="card-header bg-danger text-white fw-bold">
+                <i class="fas fa-shield-alt me-2"></i>Modération
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Supprimer ou rejeter ce signalement si le contenu est invalide ou inapproprié.
+                </p>
+                <a href="{% url 'moderer_signalement' signalement.pk %}"
+                   class="btn btn-danger w-100">
+                    <i class="fas fa-trash-alt me-1"></i>Modérer / Supprimer
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

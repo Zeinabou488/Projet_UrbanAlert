@@ -1,0 +1,39 @@
+{% extends 'tableau_de_bord/base_admin.html' %}
+
+{% block title %}Modifier {{ utilisateur.username }} — Admin{% endblock %}
+{% block page_title %}Modifier l'utilisateur{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="fas fa-user-edit me-2 text-success"></i>
+                Modifier : {{ utilisateur.username }}
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i>Enregistrer
+                        </button>
+                        <a href="{% url 'liste_utilisateurs' %}" class="btn btn-outline-secondary">
+                            Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

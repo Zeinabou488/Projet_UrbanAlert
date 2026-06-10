@@ -1,0 +1,205 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard Admin — UrbanAlert{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ua-green:  #2ecc71;
+            --ua-dark:   #2c3e50;
+            --ua-sidebar:#1a252f;
+        }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: var(--ua-sidebar);
+            position: fixed;
+            top: 0; left: 0;
+            padding: 0;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-brand {
+            padding: 1.5rem 1.2rem;
+            color: var(--ua-green);
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-brand span { color: #fff; font-weight: 300; }
+        .sidebar-nav { padding: 1rem 0; flex: 1; }
+        .sidebar-nav .nav-link {
+            color: rgba(255,255,255,0.65);
+            padding: 0.7rem 1.4rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,0.07);
+            border-left-color: var(--ua-green);
+        }
+        .sidebar-nav .nav-link i { width: 20px; }
+        .sidebar-footer {
+            padding: 1rem 1.4rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* CONTENU */
+        .main-content {
+            margin-left: 260px;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .topbar {
+            background: #fff;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* CARTES STATISTIQUES */
+        .stat-card {
+            border: none;
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card .stat-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.15;
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 0.3rem;
+        }
+
+        /* MESSAGES */
+        .messages-container {
+            position: fixed; top: 70px; right: 20px;
+            z-index: 9999; width: 350px;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- MESSAGES FLASH -->
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <i class="fas fa-city me-2"></i>Urban<span>Alert</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="{% url 'dashboard_admin' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'dashboard_admin' %}active{% endif %}">
+            <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+        </a>
+        <a href="{% url 'dashboard_signalements' %}"
+           class="nav-link {% if 'signalement' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-exclamation-triangle me-2"></i>Signalements
+        </a>
+        <a href="{% url 'liste_utilisateurs' %}"
+           class="nav-link {% if 'utilisateur' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-users me-2"></i>Utilisateurs
+        </a>
+        <a href="{% url 'statistiques' %}"
+           class="nav-link {% if request.resolver_match.url_name == 'statistiques' %}active{% endif %}">
+            <i class="fas fa-chart-bar me-2"></i>Statistiques
+        </a>
+        <a href="{% url 'liste_rapports' %}"
+           class="nav-link {% if 'rapport' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-file-pdf me-2"></i>Rapports PDF
+        </a>
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 1rem;">
+        <a href="{% url 'accueil' %}" class="nav-link">
+            <i class="fas fa-home me-2"></i>Accueil
+        </a>
+        <a href="{% url 'carte_signalements' %}" class="nav-link">
+            <i class="fas fa-map me-2"></i>Carte
+        </a>
+        <a href="{% url 'deconnexion' %}" class="nav-link text-danger">
+            <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <i class="fas fa-user-shield me-1"></i>
+        {{ request.user.username }} — Admin
+    </div>
+</aside>
+
+<!-- CONTENU PRINCIPAL -->
+<div class="main-content">
+    <div class="topbar">
+        <h5 class="mb-0 fw-bold">{% block page_title %}Dashboard{% endblock %}</h5>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success">
+                <i class="fas fa-circle me-1" style="font-size:0.5rem;"></i>En ligne
+            </span>
+            <span class="text-muted small">{{ user.username }}</span>
+        </div>
+    </div>
+
+    <div class="container-fluid py-4 px-4">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+<script>
+    setTimeout(() => {
+        document.querySelectorAll('.messages-container .alert').forEach(el => {
+            new bootstrap.Alert(el).close();
+        });
+    }, 4000);
+</script>
+</body>
+</html>

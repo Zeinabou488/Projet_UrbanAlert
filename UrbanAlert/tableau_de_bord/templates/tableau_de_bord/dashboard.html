@@ -1,0 +1,190 @@
+{% extends 'tableau_de_bord/base_admin.html' %}
+
+{% block title %}Tableau de bord — UrbanAlert Admin{% endblock %}
+{% block page_title %}Vue d'ensemble{% endblock %}
+
+{% block content %}
+
+<!-- CARTES STATISTIQUES -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#2ecc71,#27ae60);">
+            <div class="stat-value">{{ total_signalements }}</div>
+            <div class="stat-label">Total signalements</div>
+            <i class="fas fa-exclamation-triangle stat-icon"></i>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#f39c12,#e67e22);">
+            <div class="stat-value">{{ signalements_jour }}</div>
+            <div class="stat-label">Aujourd'hui</div>
+            <i class="fas fa-calendar-day stat-icon"></i>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#e74c3c,#c0392b);">
+            <div class="stat-value">{{ urgences }}</div>
+            <div class="stat-label">Urgences actives</div>
+            <i class="fas fa-bell stat-icon"></i>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#3498db,#2980b9);">
+            <div class="stat-value">{{ taux_resolution }}%</div>
+            <div class="stat-label">Taux de résolution</div>
+            <i class="fas fa-check-circle stat-icon"></i>
+        </div>
+    </div>
+
+</div>
+
+<!-- STATUTS EN TEMPS RÉEL -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center p-3">
+            <div class="h2 fw-bold text-warning">{{ en_attente }}</div>
+            <p class="mb-0 text-muted">En attente</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center p-3">
+            <div class="h2 fw-bold text-primary">{{ en_cours }}</div>
+            <p class="mb-0 text-muted">En cours</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center p-3">
+            <div class="h2 fw-bold text-success">{{ resolus }}</div>
+            <p class="mb-0 text-muted">Résolus</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+
+    <!-- URGENCES NON RÉSOLUES -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-danger text-white fw-bold">
+                <i class="fas fa-bell me-2"></i>
+                Urgences non résolues ({{ signalements_urgents.count }})
+            </div>
+            <div class="card-body p-0">
+                {% if signalements_urgents %}
+                <div class="list-group list-group-flush">
+                    {% for s in signalements_urgents %}
+                    <a href="{% url 'detail_signalement_admin' s.pk %}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-danger">{{ s.titre|truncatechars:45 }}</strong>
+                            <span class="badge bg-{{ s.statut.couleur }}">{{ s.statut.nom_statut }}</span>
+                        </div>
+                        <small class="text-muted">
+                            {{ s.quartier.commune.nom }} — {{ s.date_creation|date:"d/m/Y" }}
+                            | <i class="fas fa-thumbs-up me-1"></i>{{ s.nb_votes }}
+                        </small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <p>Aucune urgence active</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- DERNIERS SIGNALEMENTS -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between">
+                <span><i class="fas fa-clock me-2"></i>Derniers signalements</span>
+                <a href="{% url 'dashboard_signalements' %}" class="btn btn-sm btn-outline-light">Voir tout</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for s in derniers_signalements %}
+                    <a href="{% url 'detail_signalement_admin' s.pk %}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-semibold">{{ s.titre|truncatechars:40 }}</div>
+                                <small class="text-muted">
+                                    <span style="color: {{ s.sous_categorie.categorie.couleur }};">
+                                        &#9679;
+                                    </span>
+                                    {{ s.sous_categorie.categorie.nom }}
+                                    | {{ s.quartier.commune.nom }}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{{ s.statut.couleur }}">{{ s.statut.nom_statut }}</span>
+                                <br>
+                                <small class="text-muted">{{ s.date_creation|date:"d/m" }}</small>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RÉPARTITION PAR COMMUNE -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="fas fa-map me-2 text-success"></i>Signalements par commune
+            </div>
+            <div class="card-body">
+                {% for com in par_commune %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ com.nom }}</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="progress" style="width: 150px; height: 8px;">
+                            <div class="progress-bar bg-success" style="width: {% widthratio com.nb total_signalements 100 %}%"></div>
+                        </div>
+                        <strong>{{ com.nb }}</strong>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- GESTION RAPIDE -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="fas fa-bolt me-2 text-warning"></i>Actions rapides
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'dashboard_signalements' %}" class="btn btn-outline-success">
+                        <i class="fas fa-list me-2"></i>Gérer les signalements
+                    </a>
+                    <a href="{% url 'statistiques' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-bar me-2"></i>Voir les statistiques
+                    </a>
+                    <a href="{% url 'generer_rapport' %}" class="btn btn-outline-warning">
+                        <i class="fas fa-file-pdf me-2"></i>Générer un rapport PDF
+                    </a>
+                    <a href="{% url 'carte_signalements' %}" class="btn btn-outline-info">
+                        <i class="fas fa-map me-2"></i>Voir la carte
+                    </a>
+                    <a href="{% url 'liste_utilisateurs' %}" class="btn btn-outline-dark">
+                        <i class="fas fa-users me-2"></i>Gérer les utilisateurs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
