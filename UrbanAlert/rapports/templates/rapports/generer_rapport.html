@@ -1,0 +1,60 @@
+{% extends 'tableau_de_bord/base_admin.html' %}
+
+{% block title %}Générer un rapport — UrbanAlert Admin{% endblock %}
+{% block page_title %}Générer un rapport PDF{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-danger text-white fw-bold">
+                <i class="fas fa-file-pdf me-2"></i>Nouveau rapport PDF
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    Le rapport PDF contient les statistiques complètes pour la période sélectionnée :
+                    signalements par catégorie et commune, taux de résolution, top 10 des signalements.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Type de rapport</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="type_rapport"
+                                       id="hebdo" value="hebdomadaire" checked>
+                                <label class="btn btn-outline-secondary w-100" for="hebdo">
+                                    <i class="fas fa-calendar-week d-block mb-1 fs-4"></i>
+                                    Hebdomadaire<br>
+                                    <small class="text-muted">7 derniers jours</small>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="type_rapport"
+                                       id="mensuel" value="mensuel">
+                                <label class="btn btn-outline-secondary w-100" for="mensuel">
+                                    <i class="fas fa-calendar-alt d-block mb-1 fs-4"></i>
+                                    Mensuel<br>
+                                    <small class="text-muted">30 derniers jours</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="fas fa-download me-2"></i>
+                            Générer & Télécharger le PDF
+                        </button>
+                        <a href="{% url 'liste_rapports' %}" class="btn btn-outline-secondary">
+                            Voir les rapports archivés
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

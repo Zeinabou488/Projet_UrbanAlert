@@ -1,0 +1,237 @@
+{% extends 'tableau_de_bord/base_admin.html' %}
+
+{% block title %}Statistiques — UrbanAlert Admin{% endblock %}
+{% block page_title %}Statistiques & Rapports{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<!-- KPI -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#2ecc71,#27ae60);">
+            <div class="stat-value">{{ total }}</div>
+            <div class="stat-label">Total signalements</div>
+            <i class="fas fa-chart-bar stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#27ae60,#1e8449);">
+            <div class="stat-value">{{ resolus }}</div>
+            <div class="stat-label">Résolus</div>
+            <i class="fas fa-check-circle stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#f39c12,#e67e22);">
+            <div class="stat-value">{{ en_attente }}</div>
+            <div class="stat-label">En attente</div>
+            <i class="fas fa-clock stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#3498db,#2980b9);">
+            <div class="stat-value">{{ taux_resolution }}%</div>
+            <div class="stat-label">Taux de résolution</div>
+            <i class="fas fa-percent stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <!-- GRAPHIQUE PAR CATÉGORIE -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header fw-bold">
+                <i class="fas fa-tags me-2 text-success"></i>Par catégorie
+            </div>
+            <div class="card-body">
+                <canvas id="chartCategorie" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- GRAPHIQUE PAR COMMUNE -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header fw-bold">
+                <i class="fas fa-map me-2 text-success"></i>Par commune
+            </div>
+            <div class="card-body">
+                <canvas id="chartCommune" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ÉVOLUTION MENSUELLE -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="fas fa-chart-line me-2 text-success"></i>Évolution mensuelle
+            </div>
+            <div class="card-body">
+                <canvas id="chartEvolution" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-3">
+
+    <!-- TAUX PAR COMMUNE -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="fas fa-percentage me-2 text-success"></i>Taux de résolution par commune
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Commune</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Résolus</th>
+                            <th>Taux</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in taux_par_commune %}
+                        <tr>
+                            <td>{{ t.commune }}</td>
+                            <td class="text-center">{{ t.total }}</td>
+                            <td class="text-center text-success fw-bold">{{ t.resolus }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 8px;">
+                                        <div class="progress-bar bg-success"
+                                             style="width: {{ t.taux }}%"></div>
+                                    </div>
+                                    <span class="small fw-bold">{{ t.taux }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP 10 SIGNALEMENTS -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="fas fa-trophy me-2 text-warning"></i>Top 10 signalements (votes)
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for s in top_votes %}
+                    <a href="{% url 'detail_signalement_admin' s.pk %}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>{{ forloop.counter }}. {{ s.titre|truncatechars:45 }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    {{ s.quartier.commune.nom }}
+                                    | {{ s.sous_categorie.categorie.nom }}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-thumbs-up me-1"></i>{{ s.nb_votes }}
+                                </span>
+                                <br>
+                                <span class="badge bg-{{ s.statut.couleur }} mt-1">
+                                    {{ s.statut.nom_statut }}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- BOUTON RAPPORT PDF -->
+<div class="text-center mt-4">
+    <a href="{% url 'generer_rapport' %}" class="btn btn-danger btn-lg px-5">
+        <i class="fas fa-file-pdf me-2"></i>Générer un rapport PDF
+    </a>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// --- GRAPHIQUE CATÉGORIES ---
+new Chart(document.getElementById('chartCategorie'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ labels_cat|safe }},
+        datasets: [{
+            data: {{ data_cat|safe }},
+            backgroundColor: [
+                '#e74c3c','#3498db','#f39c12','#27ae60',
+                '#8e44ad','#16a085','#e91e63','#c0392b','#2980b9'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'right' } }
+    }
+});
+
+// --- GRAPHIQUE COMMUNES ---
+new Chart(document.getElementById('chartCommune'), {
+    type: 'bar',
+    data: {
+        labels: {{ labels_com|safe }},
+        datasets: [{
+            label: 'Signalements',
+            data: {{ data_com|safe }},
+            backgroundColor: '#2ecc71',
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+});
+
+// --- GRAPHIQUE ÉVOLUTION ---
+new Chart(document.getElementById('chartEvolution'), {
+    type: 'line',
+    data: {
+        labels: {{ labels_mois|safe }},
+        datasets: [{
+            label: 'Signalements',
+            data: {{ data_mois|safe }},
+            borderColor: '#2ecc71',
+            backgroundColor: 'rgba(46,204,113,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#27ae60',
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+</script>
+{% endblock %}
