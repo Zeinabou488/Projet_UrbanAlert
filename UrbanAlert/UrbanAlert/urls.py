@@ -9,6 +9,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
 
+    # Rapports et statistiques (avant admin pour que les URLs admin/* soient trouvées)
+    path('', include('rapports.urls')),
+
     # Interface d'administration Django intégrée
     path('admin/', admin.site.urls),
 
@@ -20,15 +23,12 @@ urlpatterns = [
 
     # Signalements (soumission, liste, détail, carte, API JSON)
     path('', include('signalements.urls')),
-
+0
     # Interactions citoyennes (votes, commentaires)
     path('', include('interactions.urls')),
 
     # Modération administrative (statuts, modération)
     path('', include('moderation.urls')),
-
-    # Rapports et statistiques
-    path('', include('rapports.urls')),
 
     # Tableau de bord administrateur
     path('dashboard-admin/', include('tableau_de_bord.urls')),
