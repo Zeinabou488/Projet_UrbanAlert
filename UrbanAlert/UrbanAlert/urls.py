@@ -23,7 +23,7 @@ urlpatterns = [
 
     # Signalements (soumission, liste, détail, carte, API JSON)
     path('', include('signalements.urls')),
-0
+
     # Interactions citoyennes (votes, commentaires)
     path('', include('interactions.urls')),
 
